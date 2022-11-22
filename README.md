@@ -1,6 +1,7 @@
 # expo-filedownload
 
-download and save files to local storage.
+expo-filedownload enables it simple to download and save files to mobile's local storage.
+Currently supported formats include png, jpg, pdf, mp3, mp4, and more.
 
 ## Installation
 
@@ -19,23 +20,25 @@ export default function App() {
 
     const [isLoading, setIsLoading] = useState(false)
 
-    const IMAGE_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
+    const JPG_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
     const PDF_URL = { url: "http://www.pdf995.com/samples/pdf.pdf" }
 
     const handleDownload = () => {
         setIsLoading(true)
-        downloadFile(IMAGE_URL.url)
+        downloadFile(JPG_URL.url)
             .then(() => setIsLoading(false))
             .catch(err => { console.log(err), setIsLoading(false) })
     }
 
+    if (isLoading) {
+        return (
+            <ActivityIndicator />
+        )
+    }
+
     return (
-        <View style={styles.container}>
-            {
-                isLoading ? <Text>Handle your loader here</Text> : <Button title='download' onPress={handleDownload} />
-            }
-        </View>
-    );
+        <Button title='download' onPress={handleDownload} />
+    )
 }
 ```
 
