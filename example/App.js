@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Button, StyleSheet, Text, View } from 'react-native';
 import { downloadFile } from 'expo-filedownload'
 
 export default function App() {
 
     const [isLoading, setIsLoading] = useState(false)
 
-    const IMAGE_URL = { url: "https://media.voguebusiness.com/photos/5ef6493adf1073db3375835d/2:3/w_2560%2Cc_limit/kanye-west-gap-news-voguebus-mert-alas-and-marcus-piggott-june-20-story.jpg" }
+    const JPG_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
+    const PNG_URL = { url: "https://www.fnordware.com/superpng/pnggrad16rgb.png" }
     const PDF_URL = { url: "http://www.pdf995.com/samples/pdf.pdf" }
+    const MP3_URL = { url: "http://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3" }
+    const MP4_URL = { url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" }
 
     const handleDownload = () => {
         setIsLoading(true)
-        downloadFile(IMAGE_URL.url)
+        downloadFile(MP3_URL.url)
             .then(() => setIsLoading(false))
             .catch(err => { console.log(err), setIsLoading(false) })
     }
@@ -22,7 +25,7 @@ export default function App() {
                 isLoading ? <Text>Downloading...</Text> : <Button title='download' onPress={handleDownload} />
             }
         </View>
-    );
+    )
 }
 
 const styles = StyleSheet.create({
