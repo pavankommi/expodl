@@ -11,11 +11,32 @@ npm install expo-filedownload
 ## Usage
 
 ```js
-import { multiply } from 'expo-filedownload';
+import { downloadFile } from 'expo-filedownload'
 
 // ...
 
-const result = await multiply(3, 7);
+export default function App() {
+
+    const [isLoading, setIsLoading] = useState(false)
+
+    const IMAGE_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
+    const PDF_URL = { url: "http://www.pdf995.com/samples/pdf.pdf" }
+
+    const handleDownload = () => {
+        setIsLoading(true)
+        downloadFile(IMAGE_URL.url)
+            .then(() => setIsLoading(false))
+            .catch(err => { console.log(err), setIsLoading(false) })
+    }
+
+    return (
+        <View style={styles.container}>
+            {
+                isLoading ? <Text>Handle your loader here</Text> : <Button title='download' onPress={handleDownload} />
+            }
+        </View>
+    );
+}
 ```
 
 ## Contributing
@@ -27,5 +48,3 @@ See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the 
 MIT
 
 ---
-
-Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
