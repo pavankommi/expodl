@@ -1,8 +1,9 @@
 {
   "name": "expo-filedownload",
-  "version": "0.1.0",
-  "description": "test",
+  "version": "1.0.2",
+  "description": "Download and save files to your device's local storage.",
   "main": "lib/commonjs/index",
+  "typings": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
   "react-native": "src/index",
@@ -38,7 +39,12 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "expo",
+    "expo-react-native",
+    "expo-filedownload",
+    "expo-file-system",
+    "expo-media-library"
   ],
   "repository": "https://github.com/pavankommi/expo-filedownload",
   "author": "pavankommi <pavankommi0503@gmail.com> (https://github.com/pavankommi)",
@@ -52,7 +58,8 @@
   },
   "devDependencies": {
     "@arkweid/lefthook": "^0.7.7",
-    "@commitlint/config-conventional": "^17.0.2",
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
     "@react-native-community/eslint-config": "^3.0.2",
     "@release-it/conventional-changelog": "^5.0.0",
     "@types/jest": "^28.1.2",
@@ -63,12 +70,13 @@
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^8.0.2",
     "jest": "^28.1.1",
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
     "react": "18.1.0",
     "react-native": "0.70.5",
-    "react-native-builder-bob": "^0.20.0",
+    "react-native-builder-bob": "^0.20.1",
     "release-it": "^15.0.0",
     "typescript": "^4.5.2"
   },
@@ -151,5 +159,17 @@
         }
       ]
     ]
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^13.0.0",
+    "expo-asset": "^8.6.2",
+    "expo-file-system": "^15.1.1",
+    "expo-font": "^11.0.1",
+    "expo-intent-launcher": "^10.3.1",
+    "expo-media-library": "^15.0.0",
+    "expo-modules-core": "^1.0.3",
+    "expo-permissions": "^14.0.0",
+    "expo-print": "^12.0.0",
+    "moment": "^2.29.4"
   }
 }
