@@ -1,6 +1,6 @@
 # expo-filedownload
 
-expo-filedownload enables it simple to download and save files to mobile's local storage.
+expo-filedownload makes it easy to download and save files to your mobile device's local storage.
 Currently supported formats include png, jpg, pdf, mp3, mp4, and more.
 
 ## Installation
