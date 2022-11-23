@@ -1,6 +1,6 @@
 {
   "name": "expo-filedownload",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "Download and save files to your device's local storage.",
   "main": "lib/commonjs/index",
   "typings": "lib/commonjs/index",

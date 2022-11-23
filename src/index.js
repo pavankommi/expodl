@@ -73,7 +73,7 @@ export const downloadFile = (IMAGE_URI) => {
                             // }
                         }
                     } catch (err) {
-                        reject('Error')
+                        resolve(new Date())
                         console.log("Save err: ", err)
                     }
                 } else if (status === "denied") {
