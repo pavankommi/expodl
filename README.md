@@ -40,7 +40,7 @@ export default function App() {
 }
 ```
 
-## Test urls for downloads
+## URLs to test your downloads
 ```js
 const JPG_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
 const PNG_URL = { url: "https://www.fnordware.com/superpng/pnggrad16rgb.png" }
