@@ -38,38 +38,39 @@ export const downloadFile = (IMAGE_URI) => {
                             }
 
                             // await MediaLibrary.deleteAssetsAsync(asset)
-                            try {
-                                resolve(new Date())
-                                if (fileExtension == "jpg" || fileExtension == "png") {
-                                    FileSystem.getContentUriAsync(fileurl).then(cUri => {
-                                        IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-                                            data: cUri,
-                                            flags: 1,
-                                            type: 'image/jpeg'
-                                        });
-                                    });
-                                } else if (fileExtension == "mp3") {
-                                    FileSystem.getContentUriAsync(fileurl).then(cUri => {
-                                        IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-                                            data: cUri,
-                                            flags: 1,
-                                            type: 'audio/mp3'
-                                        });
-                                    });
-                                } else if (fileExtension == "mp4") {
-                                    FileSystem.getContentUriAsync(fileurl).then(cUri => {
-                                        IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-                                            data: cUri,
-                                            flags: 1,
-                                            type: 'video/mp4'
-                                        });
-                                    });
-                                }
-                            }
-                            catch {
-                                reject('Error')
-                                console.log("not done")
-                            }
+                            resolve(new Date())
+                            // try {
+                               
+                            //     if (fileExtension == "jpg" || fileExtension == "png") {
+                            //         FileSystem.getContentUriAsync(fileurl).then(cUri => {
+                            //             IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+                            //                 data: cUri,
+                            //                 flags: 1,
+                            //                 type: 'image/jpeg'
+                            //             });
+                            //         });
+                            //     } else if (fileExtension == "mp3") {
+                            //         FileSystem.getContentUriAsync(fileurl).then(cUri => {
+                            //             IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+                            //                 data: cUri,
+                            //                 flags: 1,
+                            //                 type: 'audio/mp3'
+                            //             });
+                            //         });
+                            //     } else if (fileExtension == "mp4") {
+                            //         FileSystem.getContentUriAsync(fileurl).then(cUri => {
+                            //             IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+                            //                 data: cUri,
+                            //                 flags: 1,
+                            //                 type: 'video/mp4'
+                            //             });
+                            //         });
+                            //     }
+                            // }
+                            // catch {
+                            //     reject('Error')
+                            //     console.log("not done")
+                            // }
                         }
                     } catch (err) {
                         reject('Error')
