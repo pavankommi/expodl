@@ -1,6 +1,6 @@
 {
-  "name": "expo-filedownload",
-  "version": "1.0.10",
+  "name": "expodl",
+  "version": "1.0.0",
   "description": "Download and save files to your device's local storage.",
   "main": "lib/commonjs/index",
   "typings": "lib/commonjs/index",
@@ -42,17 +42,17 @@
     "android",
     "expo",
     "expo-react-native",
-    "expo-filedownload",
+    "expodl",
     "expo-file-system",
     "expo-media-library"
   ],
-  "repository": "https://github.com/pavankommi/expo-filedownload",
+  "repository": "https://github.com/pavankommi/expodl",
   "author": "pavankommi <pavankommi0503@gmail.com> (https://github.com/pavankommi)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pavankommi/expo-filedownload/issues"
+    "url": "https://github.com/pavankommi/expodl/issues"
   },
-  "homepage": "https://github.com/pavankommi/expo-filedownload#readme",
+  "homepage": "https://github.com/pavankommi/expodl#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

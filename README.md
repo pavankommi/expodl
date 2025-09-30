@@ -1,18 +1,18 @@
-# expo-filedownload
+# expodl
 
-expo-filedownload makes it easy to download and save files to your mobile device's local storage.
+expodl makes it easy to download and save files to your mobile device's local storage.
 Currently supported formats include png, jpg, pdf, mp3, mp4, and more.
 
 ## Installation
 
 ```sh
-npm install expo-filedownload
+npm install expodl
 ```
 
 ## Usage
 
 ```js
-import { downloadFile } from 'expo-filedownload'
+import { downloadFile } from 'expodl'
 
 // ...
 
@@ -50,14 +50,14 @@ const MP4_URL = { url: "http://commondatastorage.googleapis.com/gtv-videos-bucke
 ```
 
 
-## Handling expo-notifications with expo-filedownload
+## Handling expo-notifications with expodl
 
-Push notifications may be easily handled with expo-filedownload for a better user experience. Check out the example below to see how to use expo-filedownload with expo-notifications.
+Push notifications may be easily handled with expodl for a better user experience. Check out the example below to see how to use expodl with expo-notifications.
 
 ```js
 import React, { useEffect, useState, useRef } from 'react'
 import { ActivityIndicator, Button, Text, View } from 'react-native'
-import { downloadFile } from 'expo-filedownload'
+import { downloadFile } from 'expodl'
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import storage from "@react-native-async-storage/async-storage";

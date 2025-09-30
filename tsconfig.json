@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "expo-filedownload": ["./src/index"]
+      "expodl": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
