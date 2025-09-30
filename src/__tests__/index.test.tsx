@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 import { downloadFile, DownloadError, useDownload } from '../index';
 
 // Mock expo modules
