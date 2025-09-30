@@ -1,0 +1,20 @@
+diff --git a/node_modules/react-native/jest/setup.js b/node_modules/react-native/jest/setup.js
+index e280955..91c7db1 100644
+--- a/node_modules/react-native/jest/setup.js
++++ b/node_modules/react-native/jest/setup.js
+@@ -17,9 +17,12 @@ jest.requireActual('@react-native/polyfills/error-guard');
+ 
+ global.__DEV__ = true;
+ 
+-global.performance = {
+-  now: jest.fn(Date.now),
+-};
++if (!global.performance) {
++  global.performance = {};
++}
++if (!global.performance.now) {
++  global.performance.now = jest.fn(Date.now);
++}
+ 
+ global.Promise = jest.requireActual('promise');
+ global.regeneratorRuntime = jest.requireActual('regenerator-runtime/runtime');
