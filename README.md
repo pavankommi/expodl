@@ -9,13 +9,10 @@
 
 ## Features
 
-- 🎣 **React Hook API** - Dead simple with `useDownload()`
-- ❌ **Cancellation** - Cancel downloads mid-flight
-- 🔐 **Custom Headers** - Auth tokens, signed URLs
-- 💾 **Smart Caching** - Skip re-downloading
-- 📊 **Progress Tracking** - Real-time progress updates
-- 🎯 **Error Handling** - Proper error codes
-- 📦 **Lightweight** - Only 2 dependencies, 12.1 KB
+- 🎣 **Hook API** – `useDownload()` with built-in state
+- ❌ **Cancellation** – stop downloads mid-flight
+- 🔐 **Custom Headers** – auth tokens, signed URLs
+- 💾 **Smart Caching** – skip re-downloading files
 
 ## Installation
 
@@ -89,7 +86,7 @@ const result = await downloadFile({
 
 ## Requirements
 
-- Expo SDK 47+
+- Works with Expo SDK 47 and above (tested up to SDK 53)
 - React Native 0.70+
 
 ## License
@@ -97,5 +94,7 @@ const result = await downloadFile({
 MIT © [Pavan Kommi](https://github.com/pavankommi)
 
 ---
+
+💡 Have ideas? PRs are welcome — let's make expodl even better together!
 
 Made with ❤️ for the Expo community
