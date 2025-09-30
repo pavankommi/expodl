@@ -1,10 +1,17 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text, Button, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Button,
+  ActivityIndicator,
+} from 'react-native';
 import { useDownload } from 'expodl';
 
 export default function App() {
-  const { download, isDownloading, progress, error, result, reset } = useDownload();
+  const { download, cancel, isDownloading, progress, error, result, reset } =
+    useDownload();
 
   const handleDownload = () => {
     download('https://i.imgur.com/CzXTtJV.jpg');
@@ -13,22 +20,29 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>expodl Example</Text>
-      <Text style={styles.subtitle}>Simple download with hook</Text>
+      <Text style={styles.subtitle}>Download with cancellation</Text>
 
-      {isDownloading ? (
+      {!isDownloading && !result && (
+        <Button title="Download Image" onPress={handleDownload} />
+      )}
+
+      {isDownloading && (
         <View style={styles.downloadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.progress}>
-            {Math.round(progress * 100)}%
-          </Text>
+          <Text style={styles.progress}>{Math.round(progress * 100)}%</Text>
+          <View style={styles.buttonContainer}>
+            <Button title="Cancel" onPress={cancel} color="#ff3b30" />
+          </View>
         </View>
-      ) : (
-        <Button title="Download Image" onPress={handleDownload} />
       )}
 
       {error && (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Error: {error.message}</Text>
+          <Text style={styles.errorText}>
+            {error.code === 'CANCELLED'
+              ? '❌ Download cancelled'
+              : `Error: ${error.message}`}
+          </Text>
           <Button title="Try Again" onPress={reset} />
         </View>
       )}
@@ -38,8 +52,20 @@ export default function App() {
           <Text style={styles.successText}>✓ Download complete!</Text>
           <Text style={styles.resultText}>File: {result.fileName}</Text>
           <Text style={styles.resultText}>Type: {result.mimeType}</Text>
+          {result.cached && (
+            <Text style={styles.cachedText}>📦 Loaded from cache</Text>
+          )}
+          <View style={styles.buttonContainer}>
+            <Button title="Download Another" onPress={reset} />
+          </View>
         </View>
       )}
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          Features: Cancellation • Progress • Error Handling
+        </Text>
+      </View>
     </View>
   );
 }
@@ -71,7 +97,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: 16,
+    marginBottom: 16,
     color: '#007AFF',
+  },
+  buttonContainer: {
+    marginTop: 12,
   },
   errorContainer: {
     marginTop: 20,
@@ -84,6 +114,7 @@ const styles = StyleSheet.create({
     color: '#c62828',
     marginBottom: 12,
     textAlign: 'center',
+    fontSize: 16,
   },
   resultContainer: {
     marginTop: 20,
@@ -103,5 +134,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#555',
     marginTop: 4,
+  },
+  cachedText: {
+    fontSize: 12,
+    color: '#1976d2',
+    marginTop: 8,
+    fontWeight: '600',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 40,
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#999',
+    fontStyle: 'italic',
   },
 });

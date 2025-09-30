@@ -5,6 +5,7 @@ import { downloadFile, DownloadError, useDownload } from '../index';
 jest.mock('expo-file-system', () => ({
   documentDirectory: 'file:///mock/document/',
   createDownloadResumable: jest.fn(),
+  getInfoAsync: jest.fn(),
 }));
 
 jest.mock('expo-media-library', () => ({
@@ -269,7 +270,10 @@ describe('expodl', () => {
         (_url, _fileUri, _options, callback) => {
           if (callback) {
             setTimeout(() => {
-              callback({ totalBytesWritten: 50, totalBytesExpectedToWrite: 100 });
+              callback({
+                totalBytesWritten: 50,
+                totalBytesExpectedToWrite: 100,
+              });
             }, 10);
           }
           return { downloadAsync: mockDownloadAsync };
@@ -291,9 +295,9 @@ describe('expodl', () => {
     });
 
     it('should handle download errors', async () => {
-      const mockDownloadAsync = jest.fn().mockRejectedValue(
-        new Error('Network error')
-      );
+      const mockDownloadAsync = jest
+        .fn()
+        .mockRejectedValue(new Error('Network error'));
 
       (FileSystem.createDownloadResumable as jest.Mock).mockReturnValue({
         downloadAsync: mockDownloadAsync,
@@ -377,9 +381,7 @@ describe('expodl', () => {
         downloadAsync: mockDownloadAsync,
       });
 
-      const { result } = renderHook(() =>
-        useDownload({ saveToGallery: true })
-      );
+      const { result } = renderHook(() => useDownload({ saveToGallery: true }));
 
       await act(async () => {
         await result.current.download('https://example.com/image.jpg', {
@@ -388,6 +390,106 @@ describe('expodl', () => {
       });
 
       expect(MediaLibrary.requestPermissionsAsync).not.toHaveBeenCalled();
+    });
+
+    it('should support cancellation', () => {
+      const mockPauseAsync = jest.fn();
+      const mockDownloadAsync = jest.fn().mockImplementation(() => {
+        return new Promise(() => {}); // Never resolves
+      });
+
+      (FileSystem.createDownloadResumable as jest.Mock).mockReturnValue({
+        downloadAsync: mockDownloadAsync,
+        pauseAsync: mockPauseAsync,
+      });
+
+      const { result } = renderHook(() => useDownload());
+
+      act(() => {
+        result.current.download('https://example.com/image.jpg');
+      });
+
+      expect(result.current.isDownloading).toBe(true);
+
+      act(() => {
+        result.current.cancel();
+      });
+
+      expect(mockPauseAsync).toHaveBeenCalled();
+      expect(result.current.isDownloading).toBe(false);
+      expect(result.current.error?.code).toBe('CANCELLED');
+    });
+
+    it('should use custom headers', async () => {
+      const mockDownloadAsync = jest.fn().mockResolvedValue({
+        uri: 'file:///mock/document/test.jpg',
+      });
+
+      (FileSystem.createDownloadResumable as jest.Mock).mockReturnValue({
+        downloadAsync: mockDownloadAsync,
+      });
+
+      await act(async () => {
+        await downloadFile({
+          url: 'https://example.com/image.jpg',
+          headers: { Authorization: 'Bearer token123' },
+          saveToGallery: false,
+        });
+      });
+
+      expect(FileSystem.createDownloadResumable).toHaveBeenCalledWith(
+        'https://example.com/image.jpg',
+        expect.any(String),
+        { headers: { Authorization: 'Bearer token123' } },
+        undefined
+      );
+    });
+
+    it('should use cache and skip download if file exists', async () => {
+      const mockDownloadAsync = jest.fn();
+
+      (FileSystem.createDownloadResumable as jest.Mock).mockReturnValue({
+        downloadAsync: mockDownloadAsync,
+      });
+
+      (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
+        exists: true,
+      });
+
+      const result = await downloadFile({
+        url: 'https://example.com/image.jpg',
+        fileName: 'cached.jpg',
+        cache: true,
+        overwrite: false,
+        saveToGallery: false,
+      });
+
+      expect(result.cached).toBe(true);
+      expect(mockDownloadAsync).not.toHaveBeenCalled();
+    });
+
+    it('should download even with cache if overwrite is true', async () => {
+      const mockDownloadAsync = jest.fn().mockResolvedValue({
+        uri: 'file:///mock/document/test.jpg',
+      });
+
+      (FileSystem.createDownloadResumable as jest.Mock).mockReturnValue({
+        downloadAsync: mockDownloadAsync,
+      });
+
+      (FileSystem.getInfoAsync as jest.Mock).mockResolvedValue({
+        exists: true,
+      });
+
+      const result = await downloadFile({
+        url: 'https://example.com/image.jpg',
+        cache: true,
+        overwrite: true,
+        saveToGallery: false,
+      });
+
+      expect(result.cached).toBe(false);
+      expect(mockDownloadAsync).toHaveBeenCalled();
     });
   });
 });
