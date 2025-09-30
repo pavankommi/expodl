@@ -1,7 +1,15 @@
 # expodl
 
-expodl makes it easy to download and save files to your mobile device's local storage.
-Currently supported formats include png, jpg, pdf, mp3, mp4, and more.
+A lightweight, modern utility to download and save files to your mobile device's local storage with Expo.
+
+## Features
+
+- 🚀 Simple, clean API
+- 📦 Lightweight (only 2 dependencies)
+- 💪 TypeScript support
+- 📊 Download progress tracking
+- 🎯 Proper error handling
+- 🔄 Backward compatible
 
 ## Installation
 
@@ -9,165 +17,226 @@ Currently supported formats include png, jpg, pdf, mp3, mp4, and more.
 npm install expodl
 ```
 
+or
+
+```sh
+yarn add expodl
+```
+
 ## Usage
 
-```js
-import { downloadFile } from 'expodl'
+### Basic Usage
 
-// ...
+```typescript
+import { downloadFile } from 'expodl';
+
+// Simple download with auto-save to gallery
+await downloadFile('https://example.com/image.jpg');
+```
+
+### Advanced Usage
+
+```typescript
+import { downloadFile, DownloadError } from 'expodl';
+
+try {
+  const result = await downloadFile({
+    url: 'https://example.com/video.mp4',
+    fileName: 'my-video.mp4',
+    saveToGallery: true,
+    albumName: 'My Downloads',
+    onProgress: (progress) => {
+      console.log(`Download progress: ${Math.round(progress * 100)}%`);
+    }
+  });
+
+  console.log('Downloaded:', result.uri);
+  console.log('MIME type:', result.mimeType);
+} catch (error) {
+  if (error instanceof DownloadError) {
+    console.error(`Download failed: ${error.message} (${error.code})`);
+  }
+}
+```
+
+### With React State
+
+```typescript
+import React, { useState } from 'react';
+import { View, Button, ActivityIndicator, Text } from 'react-native';
+import { downloadFile } from 'expodl';
 
 export default function App() {
+  const [progress, setProgress] = useState(0);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-    const [isLoading, setIsLoading] = useState(false)
-
-    const JPG_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
-
-    const handleDownload = () => {
-        setIsLoading(true)
-        downloadFile(JPG_URL.url)
-            .then(() => setIsLoading(false))
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      await downloadFile({
+        url: 'https://example.com/file.pdf',
+        onProgress: (p) => setProgress(p)
+      });
+      alert('Download complete!');
+    } catch (error) {
+      alert('Download failed');
+    } finally {
+      setIsDownloading(false);
+      setProgress(0);
     }
+  };
 
-    if (isLoading) {
-        return (
-            <ActivityIndicator />
-        )
-    }
-
-    return (
-        <Button title='download' onPress={handleDownload} />
-    )
+  return (
+    <View>
+      {isDownloading ? (
+        <>
+          <ActivityIndicator />
+          <Text>{Math.round(progress * 100)}%</Text>
+        </>
+      ) : (
+        <Button title="Download File" onPress={handleDownload} />
+      )}
+    </View>
+  );
 }
 ```
 
-## URLs to test your downloads
-```js
-const JPG_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
-const PNG_URL = { url: "https://www.fnordware.com/superpng/pnggrad16rgb.png" }
-const PDF_URL = { url: "http://www.pdf995.com/samples/pdf.pdf" }
-const MP3_URL = { url: "http://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3" }
-const MP4_URL = { url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" }
+## API Reference
+
+### `downloadFile(urlOrOptions)`
+
+Downloads a file from a URL and optionally saves it to the device gallery.
+
+#### Parameters
+
+- `urlOrOptions`: `string | DownloadOptions`
+  - If string: The URL to download (saves to gallery by default)
+  - If object: Configuration options
+
+#### DownloadOptions
+
+```typescript
+interface DownloadOptions {
+  url: string;                           // Required: URL to download
+  fileName?: string;                     // Optional: Custom filename
+  saveToGallery?: boolean;              // Optional: Save to gallery (default: true)
+  albumName?: string;                   // Optional: Album name (default: 'Download')
+  onProgress?: (progress: number) => void; // Optional: Progress callback (0-1)
+}
 ```
 
+#### Returns
 
-## Handling expo-notifications with expodl
+```typescript
+interface DownloadResult {
+  uri: string;           // Local file URI
+  fileName: string;      // File name
+  mimeType: string | null; // Detected MIME type
+}
+```
 
-Push notifications may be easily handled with expodl for a better user experience. Check out the example below to see how to use expodl with expo-notifications.
+#### Throws
 
-```js
-import React, { useEffect, useState, useRef } from 'react'
-import { ActivityIndicator, Button, Text, View } from 'react-native'
-import { downloadFile } from 'expodl'
-import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
-import storage from "@react-native-async-storage/async-storage";
+`DownloadError` with error codes:
+- `INVALID_URL`: URL is missing or invalid
+- `DOWNLOAD_FAILED`: Network or download error
+- `PERMISSION_DENIED`: Media library permission denied
+- `UNKNOWN_ERROR`: Other errors
 
-// ...
+## Supported File Types
 
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true
-    })
-});
+- **Images**: jpg, jpeg, png, gif, webp
+- **Videos**: mp4, mov, avi, webm
+- **Audio**: mp3
+- **Documents**: pdf
+- **Others**: All file types are supported (downloaded with generic extension)
 
-export default function Home() {
+## Permissions
 
-    const [isLoading, setIsLoading] = useState(false)
+This library requires media library permissions to save files to the device gallery. The permissions are requested automatically when needed.
 
-    const [notification, setNotification] = useState(false);
-    const notificationListener = useRef();
-    const responseListener = useRef();
+### iOS
 
-    useEffect(() => {
-        const getPermission = async () => {
-            if (Constants.isDevice) {
-                const { status: existingStatus } = await Notifications.getPermissionsAsync();
-                let finalStatus = existingStatus;
-                if (existingStatus !== 'granted') {
-                    const { status } = await Notifications.requestPermissionsAsync();
-                    finalStatus = status;
-                }
-                if (finalStatus !== 'granted') {
-                    alert('Enable push notifications to use the app!');
-                    await storage.setItem('expopushtoken', "");
-                    return;
-                }
-                const token = (await Notifications.getExpoPushTokenAsync()).data;
-                await storage.setItem('expopushtoken', token);
-            } else {
-                alert('Must use physical device for Push Notifications');
-            }
+Add to your `app.json`:
 
-            if (Platform.OS === 'android') {
-                Notifications.setNotificationChannelAsync('default', {
-                    name: 'default',
-                    importance: Notifications.AndroidImportance.MAX,
-                    vibrationPattern: [0, 250, 250, 250],
-                    lightColor: '#FF231F7C',
-                });
-            }
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos."
         }
-
-        getPermission();
-
-        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-            setNotification(notification);
-        });
-
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => { });
-
-        return () => {
-            Notifications.removeNotificationSubscription(notificationListener.current);
-            Notifications.removeNotificationSubscription(responseListener.current);
-        };
-    }, []);
-
-    const downloadStartedNoti = async (val) => {
-        console.log(val)
-        await Notifications.scheduleNotificationAsync({
-            content: {
-                title: "Download started",
-                body: "Download started",
-                data: { data: "data goes here" }
-            },
-            trigger: null,
-        });
-    }
-
-    const downloadCompletedNoti = async () => {
-        await Notifications.scheduleNotificationAsync({
-            content: {
-                title: "Download completed",
-                body: "Download completed",
-                data: { data: "data goes here" }
-            },
-            trigger: null,
-        });
-    }
-
-    const JPG_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
-    const PDF_URL = { url: "http://www.pdf995.com/samples/pdf.pdf" }
-
-    const handleDownload = async () => {
-        await downloadStartedNoti("Download started")
-        setIsLoading(true)
-        downloadFile(JPG_URL.url)
-            .then(async () => { setIsLoading(false), await downloadCompletedNoti("Download completed") })
-    }
-
-    if (isLoading) {
-        return (
-            <ActivityIndicator />
-        )
-    }
-
-    return (
-        <Button title='download' onPress={handleDownload} />
-    )
+      ]
+    ]
+  }
 }
+```
 
+### Android
+
+Permissions are handled automatically by `expo-media-library`.
+
+## Migration from v0.x
+
+The new API is backward compatible. Old code will continue to work:
+
+```typescript
+// Old way (still works)
+await downloadFile('https://example.com/image.jpg');
+
+// New way (recommended)
+await downloadFile({
+  url: 'https://example.com/image.jpg',
+  onProgress: (p) => console.log(p)
+});
+```
+
+## Examples
+
+### Download without saving to gallery
+
+```typescript
+const result = await downloadFile({
+  url: 'https://example.com/temp.jpg',
+  saveToGallery: false
+});
+// File is in app's document directory only
+console.log(result.uri);
+```
+
+### Custom album name
+
+```typescript
+await downloadFile({
+  url: 'https://example.com/photo.jpg',
+  albumName: 'My Vacation Photos'
+});
+```
+
+### Error handling
+
+```typescript
+import { downloadFile, DownloadError } from 'expodl';
+
+try {
+  await downloadFile('https://example.com/file.pdf');
+} catch (error) {
+  if (error instanceof DownloadError) {
+    switch (error.code) {
+      case 'PERMISSION_DENIED':
+        alert('Please grant media library permissions');
+        break;
+      case 'DOWNLOAD_FAILED':
+        alert('Download failed. Check your connection.');
+        break;
+      default:
+        alert('An error occurred');
+    }
+  }
+}
 ```
 
 ## Contributing
@@ -179,3 +248,5 @@ See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the 
 MIT
 
 ---
+
+Made with ❤️ for the Expo community
