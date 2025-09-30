@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 
@@ -156,3 +157,90 @@ export async function downloadFile(
  * @deprecated Use downloadFile instead
  */
 export const download = downloadFile;
+
+// ============================================================================
+// Hook API
+// ============================================================================
+
+export interface UseDownloadOptions {
+  saveToGallery?: boolean;
+  albumName?: string;
+  fileName?: string;
+}
+
+export interface UseDownloadReturn {
+  download: (url: string, options?: UseDownloadOptions) => Promise<void>;
+  isDownloading: boolean;
+  progress: number;
+  error: DownloadError | null;
+  result: DownloadResult | null;
+  reset: () => void;
+}
+
+/**
+ * React hook for downloading files with automatic state management
+ *
+ * @example
+ * ```tsx
+ * const { download, isDownloading, progress } = useDownload();
+ *
+ * <Button
+ *   onPress={() => download('https://example.com/image.jpg')}
+ *   disabled={isDownloading}
+ * >
+ *   {isDownloading ? `${Math.round(progress * 100)}%` : 'Download'}
+ * </Button>
+ * ```
+ */
+export function useDownload(defaultOptions?: UseDownloadOptions): UseDownloadReturn {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<DownloadError | null>(null);
+  const [result, setResult] = useState<DownloadResult | null>(null);
+
+  const reset = useCallback(() => {
+    setIsDownloading(false);
+    setProgress(0);
+    setError(null);
+    setResult(null);
+  }, []);
+
+  const download = useCallback(
+    async (url: string, options?: UseDownloadOptions) => {
+      setIsDownloading(true);
+      setProgress(0);
+      setError(null);
+      setResult(null);
+
+      try {
+        const downloadResult = await downloadFile({
+          url,
+          saveToGallery: options?.saveToGallery ?? defaultOptions?.saveToGallery ?? true,
+          albumName: options?.albumName ?? defaultOptions?.albumName,
+          fileName: options?.fileName ?? defaultOptions?.fileName,
+          onProgress: (p) => setProgress(p),
+        });
+
+        setResult(downloadResult);
+      } catch (err: any) {
+        const downloadError = err instanceof DownloadError
+          ? err
+          : new DownloadError(err.message || 'An unknown error occurred', 'UNKNOWN_ERROR');
+        setError(downloadError);
+        throw downloadError;
+      } finally {
+        setIsDownloading(false);
+      }
+    },
+    [defaultOptions]
+  );
+
+  return {
+    download,
+    isDownloading,
+    progress,
+    error,
+    result,
+    reset,
+  };
+}

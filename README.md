@@ -4,6 +4,7 @@ A lightweight, modern utility to download and save files to your mobile device's
 
 ## Features
 
+- 🎣 **React Hook API** - Dead simple with `useDownload()`
 - 🚀 Simple, clean API
 - 📦 Lightweight (only 2 dependencies)
 - 💪 TypeScript support
@@ -25,83 +26,102 @@ yarn add expodl
 
 ## Usage
 
-### Basic Usage
+### Hook API (Recommended) 🎣
+
+The simplest way to download files - the hook manages everything for you!
 
 ```typescript
-import { downloadFile } from 'expodl';
-
-// Simple download with auto-save to gallery
-await downloadFile('https://example.com/image.jpg');
-```
-
-### Advanced Usage
-
-```typescript
-import { downloadFile, DownloadError } from 'expodl';
-
-try {
-  const result = await downloadFile({
-    url: 'https://example.com/video.mp4',
-    fileName: 'my-video.mp4',
-    saveToGallery: true,
-    albumName: 'My Downloads',
-    onProgress: (progress) => {
-      console.log(`Download progress: ${Math.round(progress * 100)}%`);
-    }
-  });
-
-  console.log('Downloaded:', result.uri);
-  console.log('MIME type:', result.mimeType);
-} catch (error) {
-  if (error instanceof DownloadError) {
-    console.error(`Download failed: ${error.message} (${error.code})`);
-  }
-}
-```
-
-### With React State
-
-```typescript
-import React, { useState } from 'react';
-import { View, Button, ActivityIndicator, Text } from 'react-native';
-import { downloadFile } from 'expodl';
+import { useDownload } from 'expodl';
 
 export default function App() {
-  const [progress, setProgress] = useState(0);
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const handleDownload = async () => {
-    setIsDownloading(true);
-    try {
-      await downloadFile({
-        url: 'https://example.com/file.pdf',
-        onProgress: (p) => setProgress(p)
-      });
-      alert('Download complete!');
-    } catch (error) {
-      alert('Download failed');
-    } finally {
-      setIsDownloading(false);
-      setProgress(0);
-    }
-  };
+  const { download, isDownloading, progress, error } = useDownload();
 
   return (
     <View>
-      {isDownloading ? (
-        <>
-          <ActivityIndicator />
-          <Text>{Math.round(progress * 100)}%</Text>
-        </>
-      ) : (
-        <Button title="Download File" onPress={handleDownload} />
-      )}
+      <Button
+        title={isDownloading ? `${Math.round(progress * 100)}%` : 'Download'}
+        onPress={() => download('https://example.com/image.jpg')}
+        disabled={isDownloading}
+      />
+      {error && <Text>Error: {error.message}</Text>}
     </View>
   );
 }
 ```
 
+That's it! No state management, no complex setup. Just call `download()` and the hook handles everything.
+
+### Hook with Options
+
+```typescript
+const { download, isDownloading, progress, result, error, reset } = useDownload({
+  saveToGallery: true,
+  albumName: 'My Downloads'
+});
+
+// Download with default options
+await download('https://example.com/photo.jpg');
+
+// Override options per download
+await download('https://example.com/temp.pdf', {
+  saveToGallery: false,
+  fileName: 'document.pdf'
+});
+
+// Reset state after download
+reset();
+```
+
+### Function API (Advanced)
+
+For more control, use the function directly:
+
+```typescript
+import { downloadFile } from 'expodl';
+
+const result = await downloadFile({
+  url: 'https://example.com/video.mp4',
+  fileName: 'my-video.mp4',
+  saveToGallery: true,
+  albumName: 'My Downloads',
+  onProgress: (progress) => {
+    console.log(`${Math.round(progress * 100)}%`);
+  }
+});
+
+console.log('Downloaded:', result.uri);
+```
+
 ## API Reference
+
+### `useDownload(defaultOptions?)`
+
+React hook for downloading files with automatic state management.
+
+#### Parameters
+
+- `defaultOptions?`: `UseDownloadOptions` - Default options for all downloads
+
+```typescript
+interface UseDownloadOptions {
+  saveToGallery?: boolean;  // Save to device gallery (default: true)
+  albumName?: string;       // Album name (default: 'Download')
+  fileName?: string;        // Custom filename
+}
+```
+
+#### Returns
+
+```typescript
+interface UseDownloadReturn {
+  download: (url: string, options?: UseDownloadOptions) => Promise<void>;
+  isDownloading: boolean;   // Current download state
+  progress: number;         // Download progress (0-1)
+  error: DownloadError | null;  // Last error
+  result: DownloadResult | null; // Last download result
+  reset: () => void;        // Reset all state
+}
+```
 
 ### `downloadFile(urlOrOptions)`
 
@@ -112,8 +132,6 @@ Downloads a file from a URL and optionally saves it to the device gallery.
 - `urlOrOptions`: `string | DownloadOptions`
   - If string: The URL to download (saves to gallery by default)
   - If object: Configuration options
-
-#### DownloadOptions
 
 ```typescript
 interface DownloadOptions {
@@ -142,6 +160,133 @@ interface DownloadResult {
 - `DOWNLOAD_FAILED`: Network or download error
 - `PERMISSION_DENIED`: Media library permission denied
 - `UNKNOWN_ERROR`: Other errors
+
+## Examples
+
+### Basic Download Button
+
+```typescript
+import { useDownload } from 'expodl';
+
+function DownloadButton() {
+  const { download, isDownloading, progress } = useDownload();
+
+  return (
+    <Button
+      onPress={() => download('https://example.com/file.pdf')}
+      disabled={isDownloading}
+    >
+      {isDownloading ? `Downloading ${Math.round(progress * 100)}%` : 'Download PDF'}
+    </Button>
+  );
+}
+```
+
+### Multiple Downloads
+
+```typescript
+function MultiDownload() {
+  const images = useDownload();
+  const videos = useDownload();
+
+  return (
+    <>
+      <Button onPress={() => images.download('https://example.com/photo.jpg')}>
+        {images.isDownloading ? `${Math.round(images.progress * 100)}%` : 'Download Image'}
+      </Button>
+
+      <Button onPress={() => videos.download('https://example.com/video.mp4')}>
+        {videos.isDownloading ? `${Math.round(videos.progress * 100)}%` : 'Download Video'}
+      </Button>
+    </>
+  );
+}
+```
+
+### Download with Error Handling
+
+```typescript
+function SafeDownload() {
+  const { download, isDownloading, error, reset } = useDownload();
+
+  const handleDownload = async () => {
+    try {
+      await download('https://example.com/file.zip');
+      Alert.alert('Success', 'File downloaded!');
+    } catch (err) {
+      // Error is automatically stored in `error` state
+      Alert.alert('Failed', error?.message || 'Download failed');
+    }
+  };
+
+  return (
+    <>
+      <Button onPress={handleDownload} disabled={isDownloading}>
+        Download
+      </Button>
+      {error && (
+        <>
+          <Text>Error: {error.message}</Text>
+          <Button onPress={reset}>Try Again</Button>
+        </>
+      )}
+    </>
+  );
+}
+```
+
+### Download List with Progress
+
+```typescript
+function DownloadList() {
+  const { download, isDownloading, progress, result } = useDownload();
+  const [downloads, setDownloads] = useState<DownloadResult[]>([]);
+
+  const handleDownload = async (url: string) => {
+    await download(url);
+    if (result) {
+      setDownloads(prev => [...prev, result]);
+    }
+  };
+
+  return (
+    <View>
+      {urls.map(url => (
+        <Button key={url} onPress={() => handleDownload(url)}>
+          Download
+        </Button>
+      ))}
+      {isDownloading && <Text>Progress: {Math.round(progress * 100)}%</Text>}
+      {downloads.map(d => <Text key={d.uri}>{d.fileName}</Text>)}
+    </View>
+  );
+}
+```
+
+### Custom Album and Filename
+
+```typescript
+const { download } = useDownload({
+  albumName: 'My Vacation Photos'
+});
+
+await download('https://example.com/beach.jpg', {
+  fileName: 'vacation-2024.jpg'
+});
+```
+
+### Download without Saving to Gallery
+
+```typescript
+const { download, result } = useDownload();
+
+await download('https://example.com/temp.pdf', {
+  saveToGallery: false
+});
+
+// File is only in app's document directory
+console.log('Temp file:', result?.uri);
+```
 
 ## Supported File Types
 
@@ -179,69 +324,33 @@ Add to your `app.json`:
 
 Permissions are handled automatically by `expo-media-library`.
 
-## Migration from v0.x
+## Why expodl?
 
-The new API is backward compatible. Old code will continue to work:
-
+**Before expodl:**
 ```typescript
-// Old way (still works)
-await downloadFile('https://example.com/image.jpg');
+const [isDownloading, setIsDownloading] = useState(false);
+const [progress, setProgress] = useState(0);
+const [error, setError] = useState(null);
 
-// New way (recommended)
-await downloadFile({
-  url: 'https://example.com/image.jpg',
-  onProgress: (p) => console.log(p)
-});
-```
-
-## Examples
-
-### Download without saving to gallery
-
-```typescript
-const result = await downloadFile({
-  url: 'https://example.com/temp.jpg',
-  saveToGallery: false
-});
-// File is in app's document directory only
-console.log(result.uri);
-```
-
-### Custom album name
-
-```typescript
-await downloadFile({
-  url: 'https://example.com/photo.jpg',
-  albumName: 'My Vacation Photos'
-});
-```
-
-### Error handling
-
-```typescript
-import { downloadFile, DownloadError } from 'expodl';
-
-try {
-  await downloadFile('https://example.com/file.pdf');
-} catch (error) {
-  if (error instanceof DownloadError) {
-    switch (error.code) {
-      case 'PERMISSION_DENIED':
-        alert('Please grant media library permissions');
-        break;
-      case 'DOWNLOAD_FAILED':
-        alert('Download failed. Check your connection.');
-        break;
-      default:
-        alert('An error occurred');
-    }
+const handleDownload = async () => {
+  setIsDownloading(true);
+  setError(null);
+  try {
+    // ... download logic with progress tracking
+  } catch (err) {
+    setError(err);
+  } finally {
+    setIsDownloading(false);
   }
-}
+};
 ```
 
-## Contributing
+**With expodl:**
+```typescript
+const { download, isDownloading, progress, error } = useDownload();
 
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+// That's it! One line.
+```
 
 ## License
 

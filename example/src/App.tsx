@@ -1,50 +1,44 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text, Button, ActivityIndicator, Alert } from 'react-native';
-import { downloadFile } from 'expodl';
+import { StyleSheet, View, Text, Button, ActivityIndicator } from 'react-native';
+import { useDownload } from 'expodl';
 
 export default function App() {
-  const [progress, setProgress] = React.useState(0);
-  const [isDownloading, setIsDownloading] = React.useState(false);
-  const [downloadedUri, setDownloadedUri] = React.useState<string | null>(null);
+  const { download, isDownloading, progress, error, result, reset } = useDownload();
 
-  const handleDownload = async () => {
-    setIsDownloading(true);
-    setDownloadedUri(null);
-    try {
-      const result = await downloadFile({
-        url: 'https://i.imgur.com/CzXTtJV.jpg',
-        onProgress: (p) => setProgress(p),
-      });
-      setDownloadedUri(result.uri);
-      Alert.alert('Success', 'Download complete!');
-    } catch (error) {
-      Alert.alert('Error', 'Download failed: ' + (error as Error).message);
-    } finally {
-      setIsDownloading(false);
-      setProgress(0);
-    }
+  const handleDownload = () => {
+    download('https://i.imgur.com/CzXTtJV.jpg');
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>expodl Example</Text>
+      <Text style={styles.subtitle}>Simple download with hook</Text>
 
       {isDownloading ? (
-        <>
-          <ActivityIndicator size="large" />
+        <View style={styles.downloadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
           <Text style={styles.progress}>
             {Math.round(progress * 100)}%
           </Text>
-        </>
+        </View>
       ) : (
         <Button title="Download Image" onPress={handleDownload} />
       )}
 
-      {downloadedUri && (
-        <Text style={styles.result}>
-          Downloaded to: {downloadedUri}
-        </Text>
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Error: {error.message}</Text>
+          <Button title="Try Again" onPress={reset} />
+        </View>
+      )}
+
+      {result && !isDownloading && !error && (
+        <View style={styles.resultContainer}>
+          <Text style={styles.successText}>✓ Download complete!</Text>
+          <Text style={styles.resultText}>File: {result.fileName}</Text>
+          <Text style={styles.resultText}>Type: {result.mimeType}</Text>
+        </View>
       )}
     </View>
   );
@@ -56,19 +50,58 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+    backgroundColor: '#f5f5f5',
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 8,
+    color: '#333',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 40,
+  },
+  downloadingContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
   },
   progress: {
-    fontSize: 18,
-    marginTop: 10,
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 16,
+    color: '#007AFF',
   },
-  result: {
+  errorContainer: {
     marginTop: 20,
-    fontSize: 12,
+    padding: 16,
+    backgroundColor: '#ffebee',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#c62828',
+    marginBottom: 12,
     textAlign: 'center',
+  },
+  resultContainer: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#e8f5e9',
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '100%',
+  },
+  successText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2e7d32',
+    marginBottom: 12,
+  },
+  resultText: {
+    fontSize: 12,
+    color: '#555',
+    marginTop: 4,
   },
 });
