@@ -1,181 +1,100 @@
-# expo-filedownload
+# expodl
 
-expo-filedownload makes it easy to download and save files to your mobile device's local storage.
-Currently supported formats include png, jpg, pdf, mp3, mp4, and more.
+> Lightweight Expo file download utility with caching, cancellation, and headers support.
+
+[![npm version](https://badge.fury.io/js/expodl.svg)](https://www.npmjs.com/package/expodl)
+[![npm downloads](https://img.shields.io/npm/dm/expodl.svg)](https://www.npmjs.com/package/expodl)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/expodl)](https://bundlephobia.com/package/expodl)
+[![license](https://img.shields.io/npm/l/expodl.svg)](https://github.com/pavankommi/expodl/blob/main/LICENSE)
+
+## Features
+
+- 🎣 **Hook API** – `useDownload()` with built-in state
+- ❌ **Cancellation** – stop downloads mid-flight
+- 🔐 **Custom Headers** – auth tokens, signed URLs
+- 💾 **Smart Caching** – skip re-downloading files
 
 ## Installation
 
 ```sh
-npm install expo-filedownload
+npm install expodl
 ```
 
-## Usage
+## Quick Start
 
-```js
-import { downloadFile } from 'expo-filedownload'
-
-// ...
+```typescript
+import { useDownload } from 'expodl';
 
 export default function App() {
+  const { download, isDownloading, progress, cancel } = useDownload();
 
-    const [isLoading, setIsLoading] = useState(false)
-
-    const JPG_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
-
-    const handleDownload = () => {
-        setIsLoading(true)
-        downloadFile(JPG_URL.url)
-            .then(() => setIsLoading(false))
-    }
-
-    if (isLoading) {
-        return (
-            <ActivityIndicator />
-        )
-    }
-
-    return (
-        <Button title='download' onPress={handleDownload} />
-    )
+  return (
+    <View>
+      <Button
+        title={isDownloading ? `${Math.round(progress * 100)}%` : 'Download'}
+        onPress={() => download('https://example.com/image.jpg')}
+        disabled={isDownloading}
+      />
+      {isDownloading && <Button title="Cancel" onPress={cancel} />}
+    </View>
+  );
 }
 ```
 
-## URLs to test your downloads
-```js
-const JPG_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
-const PNG_URL = { url: "https://www.fnordware.com/superpng/pnggrad16rgb.png" }
-const PDF_URL = { url: "http://www.pdf995.com/samples/pdf.pdf" }
-const MP3_URL = { url: "http://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3" }
-const MP4_URL = { url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" }
-```
+That's it! 🎉
 
+## Documentation
 
-## Handling expo-notifications with expo-filedownload
+- 📖 [API Reference](./docs/api.md) - Complete API documentation
+- 💡 [Examples](./docs/examples.md) - Advanced usage examples
 
-Push notifications may be easily handled with expo-filedownload for a better user experience. Check out the example below to see how to use expo-filedownload with expo-notifications.
+## Common Use Cases
 
-```js
-import React, { useEffect, useState, useRef } from 'react'
-import { ActivityIndicator, Button, Text, View } from 'react-native'
-import { downloadFile } from 'expo-filedownload'
-import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
-import storage from "@react-native-async-storage/async-storage";
+### Download with Authentication
 
-// ...
-
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true
-    })
+```typescript
+const { download } = useDownload({
+  headers: { 'Authorization': 'Bearer your-token' }
 });
 
-export default function Home() {
-
-    const [isLoading, setIsLoading] = useState(false)
-
-    const [notification, setNotification] = useState(false);
-    const notificationListener = useRef();
-    const responseListener = useRef();
-
-    useEffect(() => {
-        const getPermission = async () => {
-            if (Constants.isDevice) {
-                const { status: existingStatus } = await Notifications.getPermissionsAsync();
-                let finalStatus = existingStatus;
-                if (existingStatus !== 'granted') {
-                    const { status } = await Notifications.requestPermissionsAsync();
-                    finalStatus = status;
-                }
-                if (finalStatus !== 'granted') {
-                    alert('Enable push notifications to use the app!');
-                    await storage.setItem('expopushtoken', "");
-                    return;
-                }
-                const token = (await Notifications.getExpoPushTokenAsync()).data;
-                await storage.setItem('expopushtoken', token);
-            } else {
-                alert('Must use physical device for Push Notifications');
-            }
-
-            if (Platform.OS === 'android') {
-                Notifications.setNotificationChannelAsync('default', {
-                    name: 'default',
-                    importance: Notifications.AndroidImportance.MAX,
-                    vibrationPattern: [0, 250, 250, 250],
-                    lightColor: '#FF231F7C',
-                });
-            }
-        }
-
-        getPermission();
-
-        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-            setNotification(notification);
-        });
-
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => { });
-
-        return () => {
-            Notifications.removeNotificationSubscription(notificationListener.current);
-            Notifications.removeNotificationSubscription(responseListener.current);
-        };
-    }, []);
-
-    const downloadStartedNoti = async (val) => {
-        console.log(val)
-        await Notifications.scheduleNotificationAsync({
-            content: {
-                title: "Download started",
-                body: "Download started",
-                data: { data: "data goes here" }
-            },
-            trigger: null,
-        });
-    }
-
-    const downloadCompletedNoti = async () => {
-        await Notifications.scheduleNotificationAsync({
-            content: {
-                title: "Download completed",
-                body: "Download completed",
-                data: { data: "data goes here" }
-            },
-            trigger: null,
-        });
-    }
-
-    const JPG_URL = { url: "https://i.imgur.com/CzXTtJV.jpg" }
-    const PDF_URL = { url: "http://www.pdf995.com/samples/pdf.pdf" }
-
-    const handleDownload = async () => {
-        await downloadStartedNoti("Download started")
-        setIsLoading(true)
-        downloadFile(JPG_URL.url)
-            .then(async () => { setIsLoading(false), await downloadCompletedNoti("Download completed") })
-    }
-
-    if (isLoading) {
-        return (
-            <ActivityIndicator />
-        )
-    }
-
-    return (
-        <Button title='download' onPress={handleDownload} />
-    )
-}
-
+await download('https://api.example.com/protected/file.pdf');
 ```
 
-## Contributing
+### Smart Caching
 
-See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+```typescript
+const { download } = useDownload({
+  cache: true,
+  overwrite: false  // Skip if already exists
+});
+
+await download('https://example.com/avatar.jpg');
+```
+
+### Function API (Advanced)
+
+```typescript
+import { downloadFile } from 'expodl';
+
+const result = await downloadFile({
+  url: 'https://example.com/file.pdf',
+  fileName: 'my-file.pdf',
+  onProgress: (progress) => console.log(progress)
+});
+```
+
+
+## Requirements
+
+- Works with Expo SDK 47 and above (tested up to SDK 53)
+- React Native 0.70+
 
 ## License
 
-MIT
+MIT © [Pavan Kommi](https://github.com/pavankommi)
 
 ---
+
+💡 Have ideas? PRs are welcome — let's make expodl even better together!
+
+Made with ❤️ for the Expo community
