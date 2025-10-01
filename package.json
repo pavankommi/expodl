@@ -1,9 +1,8 @@
 {
   "name": "expodl",
   "version": "1.0.0",
-  "description": "Download and save files to your device's local storage.",
+  "description": "Lightweight Expo file download utility with caching, cancellation, and headers support.",
   "main": "lib/commonjs/index",
-  "typings": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
   "react-native": "src/index",
@@ -32,6 +31,7 @@
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
+    "postinstall": "patch-package",
     "release": "release-it",
     "example": "yarn --cwd example",
     "bootstrap": "yarn example && yarn install"
@@ -58,34 +58,34 @@
   },
   "devDependencies": {
     "@react-native-community/eslint-config": "^3.0.2",
-    "@testing-library/react-hooks": "^8.0.1",
+    "@testing-library/react-native": "^12.0.0",
     "@types/jest": "^28.1.2",
-    "@types/react": "~17.0.21",
+    "@types/react": "~18.0.0",
     "@types/react-native": "0.70.0",
     "del-cli": "^5.0.0",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^28.1.1",
+    "patch-package": "^8.0.1",
+    "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.0.5",
     "react": "18.1.0",
     "react-native": "0.70.5",
     "react-native-builder-bob": "^0.20.1",
+    "react-test-renderer": "18.1.0",
     "typescript": "^4.5.2"
   },
   "resolutions": {
-    "@types/react": "17.0.21"
+    "@types/react": "18.0.0"
+  },
+  "overrides": {
+    "react": "18.1.0",
+    "react-test-renderer": "18.1.0"
   },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
-  },
-  "jest": {
-    "preset": "react-native",
-    "modulePathIgnorePatterns": [
-      "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
-    ]
+    "react": ">=17",
+    "react-native": ">=0.70"
   },
   "eslintConfig": {
     "root": true,
