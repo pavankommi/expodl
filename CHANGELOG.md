@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/pavankommi/expodl/compare/v1.0.0...v1.0.1) (2025-10-01)
+
+
+### Bug Fixes
+
+* prettier only checks specific files that actually exist, avoidin… ([bb84e42](https://github.com/pavankommi/expodl/commit/bb84e4293e78eafffffb89659a42c8483aad75dc))
+* prettier only checks specific files that actually exist, avoiding issues with files that release-please will create later (like CHANGELOG.md) ([ebf8cab](https://github.com/pavankommi/expodl/commit/ebf8cab5e9ad341c00a77e38eb0ea3ca8e974942))
+
 ## 1.0.0 (2025-10-01)
 
 
