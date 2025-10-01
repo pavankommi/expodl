@@ -54,7 +54,7 @@ That's it! 🎉
 
 ```typescript
 const { download } = useDownload({
-  headers: { 'Authorization': 'Bearer your-token' }
+  headers: { Authorization: 'Bearer your-token' },
 });
 
 await download('https://api.example.com/protected/file.pdf');
@@ -65,7 +65,7 @@ await download('https://api.example.com/protected/file.pdf');
 ```typescript
 const { download } = useDownload({
   cache: true,
-  overwrite: false  // Skip if already exists
+  overwrite: false, // Skip if already exists
 });
 
 await download('https://example.com/avatar.jpg');
@@ -79,10 +79,9 @@ import { downloadFile } from 'expodl';
 const result = await downloadFile({
   url: 'https://example.com/file.pdf',
   fileName: 'my-file.pdf',
-  onProgress: (progress) => console.log(progress)
+  onProgress: (progress) => console.log(progress),
 });
 ```
-
 
 ## Requirements
 
