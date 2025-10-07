@@ -62,6 +62,7 @@
     "@types/jest": "^30.0.0",
     "@types/react": "~18.0.0",
     "@types/react-native": "0.70.0",
+    "@typescript-eslint/parser": "^8.46.0",
     "del-cli": "^7.0.0",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",

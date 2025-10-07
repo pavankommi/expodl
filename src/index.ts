@@ -22,7 +22,10 @@ export interface DownloadResult {
 }
 
 export class DownloadError extends Error {
-  constructor(message: string, public code: string) {
+  constructor(
+    message: string,
+    public code: string
+  ) {
     super(message);
     this.name = 'DownloadError';
   }
