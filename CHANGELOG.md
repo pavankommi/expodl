@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.2](https://github.com/pavankommi/expodl/compare/v1.0.1...v1.0.2) (2025-10-07)
+
+
+### Bug Fixes
+
+* consolidate dependency updates and migrate to ESLint 9 ([59ef294](https://github.com/pavankommi/expodl/commit/59ef294a489d4519c4aa90cf720bce38c5b21e80))
+* migrate to ESLint 9 flat config and add TypeScript parser ([21156b9](https://github.com/pavankommi/expodl/commit/21156b981fae6996ad0ebffa32dd797084c85cc9))
+
 ## [1.0.1](https://github.com/pavankommi/expodl/compare/v1.0.0...v1.0.1) (2025-10-01)
 
 
