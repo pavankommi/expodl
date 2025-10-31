@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3](https://github.com/pavankommi/expodl/compare/v1.0.2...v1.0.3) (2025-10-31)
+
+
+### Bug Fixes
+
+* **deps:** upgrade React Native and testing library ([3c0117e](https://github.com/pavankommi/expodl/commit/3c0117e3ea5bf2ce86f3257721706c96a0b1bf0d))
+* **deps:** upgrade React Native and testing library ([1d7418f](https://github.com/pavankommi/expodl/commit/1d7418f58632cea2890e6152bd8a9021f6374913))
+
 ## [1.0.2](https://github.com/pavankommi/expodl/compare/v1.0.1...v1.0.2) (2025-10-07)
 
 
