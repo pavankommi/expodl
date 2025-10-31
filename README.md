@@ -85,15 +85,10 @@ const result = await downloadFile({
 
 ## Requirements
 
-- Works with Expo SDK 47 and above (tested up to SDK 53)
-- React Native 0.70+
+- Expo SDK 47+ (tested up to SDK 53)
+- React Native 0.70+ (tested up to 0.81)
+- React 17+
 
 ## License
 
 MIT © [Pavan Kommi](https://github.com/pavankommi)
-
----
-
-💡 Have ideas? PRs are welcome — let's make expodl even better together!
-
-Made with ❤️ for the Expo community
