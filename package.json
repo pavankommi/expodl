@@ -1,6 +1,6 @@
 {
   "name": "expodl",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Lightweight Expo file download utility with caching, cancellation, and headers support.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
