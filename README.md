@@ -1,11 +1,11 @@
-# expo-download
+# expodownload
 
 > Lightweight Expo file download utility with caching, cancellation, and headers support.
 
-[![npm version](https://badge.fury.io/js/expo-download.svg)](https://www.npmjs.com/package/expo-download)
-[![npm downloads](https://img.shields.io/npm/dm/expo-download.svg)](https://www.npmjs.com/package/expo-download)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/expo-download)](https://bundlephobia.com/package/expo-download)
-[![license](https://img.shields.io/npm/l/expo-download.svg)](https://github.com/pavankommi/expo-download/blob/main/LICENSE)
+[![npm version](https://badge.fury.io/js/expodownload.svg)](https://www.npmjs.com/package/expodownload)
+[![npm downloads](https://img.shields.io/npm/dm/expodownload.svg)](https://www.npmjs.com/package/expodownload)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/expodownload)](https://bundlephobia.com/package/expodownload)
+[![license](https://img.shields.io/npm/l/expodownload.svg)](https://github.com/pavankommi/expodownload/blob/main/LICENSE)
 
 ## Features
 
@@ -17,7 +17,7 @@
 ## Installation
 
 ```sh
-npx expo install expo-download expo-file-system expo-media-library
+npx expo install expodownload expo-file-system expo-media-library
 ```
 
 `expo-file-system` and `expo-media-library` are peer dependencies — installing them with `npx expo install` ensures the versions match your Expo SDK.
@@ -25,7 +25,7 @@ npx expo install expo-download expo-file-system expo-media-library
 ## Quick Start
 
 ```typescript
-import { useDownload } from 'expo-download';
+import { useDownload } from 'expodownload';
 
 export default function App() {
   const { download, isDownloading, progress, cancel } = useDownload();
@@ -86,7 +86,7 @@ await download('https://example.com/photo.jpg');
 ### Function API (Advanced)
 
 ```typescript
-import { downloadFile } from 'expo-download';
+import { downloadFile } from 'expodownload';
 
 const result = await downloadFile({
   url: 'https://example.com/file.pdf',
@@ -105,7 +105,7 @@ For Expo SDK 53 and below, use `expodl@1.x` (this package's previous name).
 
 ## Migrating from 1.x
 
-- **Package renamed from `expodl` to `expo-download`.** Uninstall `expodl` and install `expo-download`; imports change accordingly.
+- **Package renamed from `expodl` to `expodownload`.** Uninstall `expodl` and install `expodownload`; imports change accordingly.
 - **`saveToGallery` now defaults to `false`.** Downloads land in the app's document directory unless you opt in. Pass `saveToGallery: true` to keep the old behavior (media files only).
 - **`overwrite` option removed.** `cache: true` alone now reuses an existing file; omit it to always re-download.
 - **`expo-file-system` and `expo-media-library` are peer dependencies.** Install them in your app with `npx expo install`.

@@ -1,6 +1,6 @@
 # API Reference
 
-Complete API documentation for expo-download.
+Complete API documentation for expodownload.
 
 ## Table of Contents
 
@@ -131,7 +131,7 @@ Throws `DownloadError` with specific error codes. See [Error Handling](#error-ha
 ### Example
 
 ```typescript
-import { downloadFile } from 'expo-download';
+import { downloadFile } from 'expodownload';
 
 // Simple download
 const result = await downloadFile('https://example.com/image.jpg');
@@ -295,7 +295,7 @@ try {
 **With Function:**
 
 ```typescript
-import { downloadFile, DownloadError } from 'expo-download';
+import { downloadFile, DownloadError } from 'expodownload';
 
 try {
   await downloadFile('https://example.com/file.pdf');
@@ -322,7 +322,7 @@ try {
 
 ## Supported File Types
 
-expo-download automatically detects MIME types for common file extensions:
+expodownload automatically detects MIME types for common file extensions:
 
 | Extension | MIME Type |
 |-----------|-----------|
