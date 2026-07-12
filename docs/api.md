@@ -275,6 +275,7 @@ class DownloadError extends Error {
 | `DOWNLOAD_FAILED` | Network or download error | Network issues, 404, server error |
 | `PERMISSION_DENIED` | Media library permission denied | User denied permission |
 | `CANCELLED` | Download was cancelled | User called `cancel()` |
+| `UNAVAILABLE` | No writable document directory | Running on web |
 | `UNKNOWN_ERROR` | Other errors | Unexpected errors |
 
 ### Handling Errors

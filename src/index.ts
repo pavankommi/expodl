@@ -70,7 +70,8 @@ function generateFileName(url: string, customName?: string): string {
 }
 
 async function saveToMediaLibrary(uri: string, albumName: string) {
-  const { status } = await MediaLibrary.requestPermissionsAsync();
+  // writeOnly: saving is the only media library operation performed
+  const { status } = await MediaLibrary.requestPermissionsAsync(true);
 
   if (status !== 'granted') {
     throw new DownloadError(
@@ -107,8 +108,17 @@ async function performDownload(
     throw new DownloadError('URL is required', 'INVALID_URL');
   }
 
+  // documentDirectory is null on platforms without a writable directory (web)
+  const directory = FileSystem.documentDirectory;
+  if (!directory) {
+    throw new DownloadError(
+      'No writable document directory available on this platform',
+      'UNAVAILABLE'
+    );
+  }
+
   const fileName = generateFileName(url, customFileName);
-  const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+  const fileUri = `${directory}${fileName}`;
   const extension = getFileExtension(url);
   const mimeType = getMimeType(extension);
 
