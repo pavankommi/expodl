@@ -29,12 +29,11 @@ Default options applied to all downloads. Can be overridden per download.
 
 ```typescript
 interface UseDownloadOptions {
-  saveToGallery?: boolean;          // Save to device gallery (default: true)
+  saveToGallery?: boolean;          // Save to device gallery (default: false)
   albumName?: string;               // Album name (default: 'Download')
   fileName?: string;                // Custom filename
   headers?: Record<string, string>; // Custom HTTP headers
-  cache?: boolean;                  // Enable caching (default: false)
-  overwrite?: boolean;              // Overwrite cached files (default: true)
+  cache?: boolean;                  // Reuse existing file (default: false)
 }
 ```
 
@@ -97,7 +96,7 @@ Can accept either a string URL (for simple downloads) or a full options object.
 
 ```typescript
 await downloadFile('https://example.com/image.jpg');
-// Equivalent to: downloadFile({ url: '...', saveToGallery: true })
+// Equivalent to: downloadFile({ url: '...' })
 ```
 
 #### Options Object
@@ -106,11 +105,10 @@ await downloadFile('https://example.com/image.jpg');
 interface DownloadOptions {
   url: string;                           // Required: URL to download
   fileName?: string;                     // Optional: Custom filename
-  saveToGallery?: boolean;              // Optional: Save to gallery (default: true)
+  saveToGallery?: boolean;              // Optional: Save to gallery (default: false)
   albumName?: string;                   // Optional: Album name (default: 'Download')
   headers?: Record<string, string>;     // Optional: Custom HTTP headers
-  cache?: boolean;                      // Optional: Enable caching (default: false)
-  overwrite?: boolean;                  // Optional: Overwrite cached (default: true)
+  cache?: boolean;                      // Optional: Reuse existing file (default: false)
   onProgress?: (progress: number) => void; // Optional: Progress callback (0-1)
 }
 ```
@@ -122,7 +120,6 @@ interface DownloadResult {
   uri: string;           // Local file URI (file://...)
   fileName: string;      // File name
   mimeType: string | null; // Detected MIME type
-  size?: number;         // File size in bytes
   cached?: boolean;      // Whether file was served from cache
 }
 ```
@@ -178,7 +175,6 @@ interface DownloadOptions {
   albumName?: string;
   headers?: Record<string, string>;
   cache?: boolean;
-  overwrite?: boolean;
   onProgress?: (progress: number) => void;
 }
 ```
@@ -187,11 +183,10 @@ interface DownloadOptions {
 |----------|------|---------|-------------|
 | `url` | `string` | **Required** | URL to download |
 | `fileName` | `string` | Auto-generated | Custom filename |
-| `saveToGallery` | `boolean` | `true` | Save to device gallery |
+| `saveToGallery` | `boolean` | `false` | Save to device gallery |
 | `albumName` | `string` | `'Download'` | Gallery album name |
 | `headers` | `Record<string, string>` | `undefined` | Custom HTTP headers |
-| `cache` | `boolean` | `false` | Enable file caching |
-| `overwrite` | `boolean` | `true` | Overwrite existing cached files |
+| `cache` | `boolean` | `false` | Reuse existing file instead of re-downloading |
 | `onProgress` | `(progress: number) => void` | `undefined` | Progress callback (0-1) |
 
 ### DownloadResult
@@ -203,7 +198,6 @@ interface DownloadResult {
   uri: string;
   fileName: string;
   mimeType: string | null;
-  size?: number;
   cached?: boolean;
 }
 ```
@@ -213,7 +207,6 @@ interface DownloadResult {
 | `uri` | `string` | Local file URI (file://...) |
 | `fileName` | `string` | Downloaded file name |
 | `mimeType` | `string \| null` | Detected MIME type |
-| `size` | `number` | File size in bytes (optional) |
 | `cached` | `boolean` | `true` if loaded from cache |
 
 ### UseDownloadOptions
@@ -227,7 +220,6 @@ interface UseDownloadOptions {
   fileName?: string;
   headers?: Record<string, string>;
   cache?: boolean;
-  overwrite?: boolean;
 }
 ```
 
@@ -421,10 +413,9 @@ await download(url, {
 Skip re-downloading files:
 
 ```typescript
-// Enable caching, don't overwrite existing
+// Reuse the file if it already exists on disk
 const { download } = useDownload({
-  cache: true,
-  overwrite: false
+  cache: true
 });
 
 await download('https://example.com/avatar.jpg', {

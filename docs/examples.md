@@ -11,7 +11,7 @@ Advanced usage examples for expodl.
 - [Error Handling](#error-handling)
 - [Download List with Progress](#download-list-with-progress)
 - [Custom Album and Filename](#custom-album-and-filename)
-- [Download without Gallery Save](#download-without-gallery-save)
+- [Save to Gallery](#save-to-gallery)
 
 ---
 
@@ -87,8 +87,7 @@ import { useDownload } from 'expodl';
 
 function CachedDownload() {
   const { download, result } = useDownload({
-    cache: true,
-    overwrite: false  // Don't re-download if exists
+    cache: true  // Reuse the file if it already exists
   });
 
   const handleDownload = async () => {
@@ -251,13 +250,14 @@ function DownloadList() {
 
 ## Custom Album and Filename
 
-Organize downloads into specific albums with custom names:
+Organize gallery downloads into specific albums with custom names:
 
 ```typescript
 import { useDownload } from 'expodl';
 
 function OrganizedDownload() {
   const { download } = useDownload({
+    saveToGallery: true,
     albumName: 'My Vacation Photos'
   });
 
@@ -278,35 +278,33 @@ function OrganizedDownload() {
 
 ---
 
-## Download without Gallery Save
+## Save to Gallery
 
-Download files to app's document directory only:
+By default, files are saved only to the app's document directory. Opt in to also save media to the device gallery:
 
 ```typescript
 import { useDownload } from 'expodl';
 
-function TempDownload() {
+function GalleryDownload() {
   const { download, result } = useDownload();
 
   const handleDownload = async () => {
-    await download('https://example.com/temp.pdf', {
-      saveToGallery: false  // Only save to app directory
+    await download('https://example.com/photo.jpg', {
+      saveToGallery: true,
+      albumName: 'Downloads'
     });
 
-    // File is in app's document directory
-    console.log('Temp file:', result?.uri);
-    // Use the file (display, share, etc.)
+    console.log('Saved to gallery:', result?.uri);
   };
 
-  return <Button onPress={handleDownload}>Download Temporarily</Button>;
+  return <Button onPress={handleDownload}>Save to Gallery</Button>;
 }
 ```
 
-**Use cases:**
-- Temporary files that will be processed
-- Cache files
-- Files for immediate use (share, display)
-- Files that shouldn't clutter user's gallery
+**Notes:**
+- Requires media library permission (requested automatically)
+- Only use for media files (images, video, audio) — the media library rejects other file types like PDFs
+- Without `saveToGallery`, files stay in the app's document directory (good for temp files, caching, share sheets)
 
 ---
 
@@ -328,7 +326,6 @@ async function advancedDownload() {
       'Custom-Header': 'value'
     },
     cache: true,
-    overwrite: false,
     onProgress: (progress) => {
       console.log(`Download: ${Math.round(progress * 100)}%`);
     }
@@ -362,7 +359,6 @@ export default function DownloadManager() {
     reset
   } = useDownload({
     cache: true,
-    overwrite: false,
     headers: {
       'User-Agent': 'expodl-example'
     }
