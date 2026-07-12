@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.0](https://github.com/pavankommi/expo-download/compare/v1.0.3...v2.0.0) (2026-07-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* the package is now published as expo-download; expodl is deprecated. The expo- prefix matches community convention and what people actually search for. 1.x remains available as expodl.
+* requires Expo SDK 54+ (expo-file-system >=19, expo-media-library >=17), React 18+, and React Native 0.76+. expo-file-system and expo-media-library are now peerDependencies and must be installed by the consuming app. saveToGallery now defaults to false. The overwrite option is removed; cache: true alone reuses an existing file. cancel() now cancels the download instead of pausing it, and the pending download() promise rejects with code CANCELLED. DownloadResult.size is removed (it was never populated).
+
+### Features
+
+* modernize for Expo SDK 54+, fix consumer install failure ([68f7f60](https://github.com/pavankommi/expo-download/commit/68f7f600bd55600bc16adb9e9bb660918e6da8ef))
+* rename package to expo-download ([3742e41](https://github.com/pavankommi/expo-download/commit/3742e416143add0d67552fd572a9c1ae4bfd8e72))
+
 ## [1.0.3](https://github.com/pavankommi/expodl/compare/v1.0.2...v1.0.3) (2025-10-31)
 
 
