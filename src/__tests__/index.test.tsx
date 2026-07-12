@@ -25,7 +25,7 @@ jest.mock('expo-media-library', () => ({
 import * as FileSystem from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
 
-describe('expodl', () => {
+describe('expo-download', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

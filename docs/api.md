@@ -1,6 +1,6 @@
 # API Reference
 
-Complete API documentation for expodl.
+Complete API documentation for expo-download.
 
 ## Table of Contents
 
@@ -131,7 +131,7 @@ Throws `DownloadError` with specific error codes. See [Error Handling](#error-ha
 ### Example
 
 ```typescript
-import { downloadFile } from 'expodl';
+import { downloadFile } from 'expo-download';
 
 // Simple download
 const result = await downloadFile('https://example.com/image.jpg');
@@ -148,7 +148,6 @@ const result = await downloadFile({
     'X-Custom-Header': 'value'
   },
   cache: true,
-  overwrite: false,
   onProgress: (progress) => {
     console.log(`${Math.round(progress * 100)}%`);
   }
@@ -296,7 +295,7 @@ try {
 **With Function:**
 
 ```typescript
-import { downloadFile, DownloadError } from 'expodl';
+import { downloadFile, DownloadError } from 'expo-download';
 
 try {
   await downloadFile('https://example.com/file.pdf');
@@ -323,7 +322,7 @@ try {
 
 ## Supported File Types
 
-expodl automatically detects MIME types for common file extensions:
+expo-download automatically detects MIME types for common file extensions:
 
 | Extension | MIME Type |
 |-----------|-----------|

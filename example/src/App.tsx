@@ -7,7 +7,7 @@ import {
   Button,
   ActivityIndicator,
 } from 'react-native';
-import { useDownload } from 'expodl';
+import { useDownload } from 'expo-download';
 
 export default function App() {
   const { download, cancel, isDownloading, progress, error, result, reset } =
@@ -19,7 +19,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>expodl Example</Text>
+      <Text style={styles.title}>expo-download Example</Text>
       <Text style={styles.subtitle}>Download with cancellation</Text>
 
       {!isDownloading && !result && (

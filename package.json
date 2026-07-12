@@ -1,5 +1,5 @@
 {
-  "name": "expodl",
+  "name": "expo-download",
   "version": "1.0.3",
   "description": "Lightweight Expo file download utility with caching, cancellation, and headers support.",
   "main": "lib/commonjs/index",
@@ -42,16 +42,18 @@
     "expo",
     "expo-react-native",
     "expodl",
+    "download",
+    "file-download",
     "expo-file-system",
     "expo-media-library"
   ],
-  "repository": "https://github.com/pavankommi/expodl",
+  "repository": "https://github.com/pavankommi/expo-download",
   "author": "pavankommi <pavankommi0503@gmail.com> (https://github.com/pavankommi)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pavankommi/expodl/issues"
+    "url": "https://github.com/pavankommi/expo-download/issues"
   },
-  "homepage": "https://github.com/pavankommi/expodl#readme",
+  "homepage": "https://github.com/pavankommi/expo-download#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
