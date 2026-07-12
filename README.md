@@ -1,11 +1,11 @@
-# expodl
+# expo-download
 
 > Lightweight Expo file download utility with caching, cancellation, and headers support.
 
-[![npm version](https://badge.fury.io/js/expodl.svg)](https://www.npmjs.com/package/expodl)
-[![npm downloads](https://img.shields.io/npm/dm/expodl.svg)](https://www.npmjs.com/package/expodl)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/expodl)](https://bundlephobia.com/package/expodl)
-[![license](https://img.shields.io/npm/l/expodl.svg)](https://github.com/pavankommi/expodl/blob/main/LICENSE)
+[![npm version](https://badge.fury.io/js/expo-download.svg)](https://www.npmjs.com/package/expo-download)
+[![npm downloads](https://img.shields.io/npm/dm/expo-download.svg)](https://www.npmjs.com/package/expo-download)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/expo-download)](https://bundlephobia.com/package/expo-download)
+[![license](https://img.shields.io/npm/l/expo-download.svg)](https://github.com/pavankommi/expo-download/blob/main/LICENSE)
 
 ## Features
 
@@ -17,13 +17,15 @@
 ## Installation
 
 ```sh
-npm install expodl
+npx expo install expo-download expo-file-system expo-media-library
 ```
+
+`expo-file-system` and `expo-media-library` are peer dependencies — installing them with `npx expo install` ensures the versions match your Expo SDK.
 
 ## Quick Start
 
 ```typescript
-import { useDownload } from 'expodl';
+import { useDownload } from 'expo-download';
 
 export default function App() {
   const { download, isDownloading, progress, cancel } = useDownload();
@@ -64,17 +66,27 @@ await download('https://api.example.com/protected/file.pdf');
 
 ```typescript
 const { download } = useDownload({
-  cache: true,
-  overwrite: false, // Skip if already exists
+  cache: true, // Reuse the file if it already exists
 });
 
 await download('https://example.com/avatar.jpg');
 ```
 
+### Save to Gallery
+
+```typescript
+const { download } = useDownload({
+  saveToGallery: true, // Off by default
+  albumName: 'My Photos',
+});
+
+await download('https://example.com/photo.jpg');
+```
+
 ### Function API (Advanced)
 
 ```typescript
-import { downloadFile } from 'expodl';
+import { downloadFile } from 'expo-download';
 
 const result = await downloadFile({
   url: 'https://example.com/file.pdf',
@@ -85,9 +97,20 @@ const result = await downloadFile({
 
 ## Requirements
 
-- Expo SDK 47+ (tested up to SDK 53)
-- React Native 0.70+ (tested up to 0.81)
-- React 17+
+- Expo SDK 54+ (`expo-file-system` 19+, `expo-media-library` 17+)
+- React Native 0.76+
+- React 18+
+
+For Expo SDK 53 and below, use `expodl@1.x` (this package's previous name).
+
+## Migrating from 1.x
+
+- **Package renamed from `expodl` to `expo-download`.** Uninstall `expodl` and install `expo-download`; imports change accordingly.
+- **`saveToGallery` now defaults to `false`.** Downloads land in the app's document directory unless you opt in. Pass `saveToGallery: true` to keep the old behavior (media files only).
+- **`overwrite` option removed.** `cache: true` alone now reuses an existing file; omit it to always re-download.
+- **`expo-file-system` and `expo-media-library` are peer dependencies.** Install them in your app with `npx expo install`.
+- **`cancel()` now actually cancels** the underlying download (previously it only paused), and the pending `download()` promise rejects with code `CANCELLED`.
+- **`DownloadResult.size` removed** (it was never populated).
 
 ## License
 

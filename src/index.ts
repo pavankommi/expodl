@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as MediaLibrary from 'expo-media-library';
 
 export interface DownloadOptions {
@@ -10,14 +10,12 @@ export interface DownloadOptions {
   onProgress?: (progress: number) => void;
   headers?: Record<string, string>;
   cache?: boolean;
-  overwrite?: boolean;
 }
 
 export interface DownloadResult {
   uri: string;
   fileName: string;
   mimeType: string | null;
-  size?: number;
   cached?: boolean;
 }
 
@@ -71,6 +69,110 @@ function generateFileName(url: string, customName?: string): string {
   return `download_${timestamp}.${extension}`;
 }
 
+async function saveToMediaLibrary(uri: string, albumName: string) {
+  // writeOnly: saving is the only media library operation performed
+  const { status } = await MediaLibrary.requestPermissionsAsync(true);
+
+  if (status !== 'granted') {
+    throw new DownloadError(
+      'Media library permission denied',
+      'PERMISSION_DENIED'
+    );
+  }
+
+  const asset = await MediaLibrary.createAssetAsync(uri);
+  const album = await MediaLibrary.getAlbumAsync(albumName);
+
+  if (album === null) {
+    await MediaLibrary.createAlbumAsync(albumName, asset, false);
+  } else {
+    await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+  }
+}
+
+async function performDownload(
+  options: DownloadOptions,
+  onResumableCreated?: (resumable: FileSystem.DownloadResumable) => void
+): Promise<DownloadResult> {
+  const {
+    url,
+    fileName: customFileName,
+    saveToGallery = false,
+    albumName = 'Download',
+    onProgress,
+    headers,
+    cache = false,
+  } = options;
+
+  if (!url) {
+    throw new DownloadError('URL is required', 'INVALID_URL');
+  }
+
+  // documentDirectory is null on platforms without a writable directory (web)
+  const directory = FileSystem.documentDirectory;
+  if (!directory) {
+    throw new DownloadError(
+      'No writable document directory available on this platform',
+      'UNAVAILABLE'
+    );
+  }
+
+  const fileName = generateFileName(url, customFileName);
+  const fileUri = `${directory}${fileName}`;
+  const extension = getFileExtension(url);
+  const mimeType = getMimeType(extension);
+
+  // Reuse existing file when caching is enabled
+  if (cache) {
+    const fileInfo = await FileSystem.getInfoAsync(fileUri);
+    if (fileInfo.exists) {
+      return {
+        uri: fileUri,
+        fileName,
+        mimeType,
+        cached: true,
+      };
+    }
+  }
+
+  const downloadResumable = FileSystem.createDownloadResumable(
+    url,
+    fileUri,
+    headers ? { headers } : {},
+    onProgress
+      ? (downloadProgress) => {
+          const { totalBytesWritten, totalBytesExpectedToWrite } =
+            downloadProgress;
+          // totalBytesExpectedToWrite is -1 when the server omits Content-Length
+          if (totalBytesExpectedToWrite > 0) {
+            onProgress(
+              Math.min(totalBytesWritten / totalBytesExpectedToWrite, 1)
+            );
+          }
+        }
+      : undefined
+  );
+
+  onResumableCreated?.(downloadResumable);
+
+  const downloadResult = await downloadResumable.downloadAsync();
+
+  if (!downloadResult) {
+    throw new DownloadError('Download failed', 'DOWNLOAD_FAILED');
+  }
+
+  if (saveToGallery) {
+    await saveToMediaLibrary(downloadResult.uri, albumName);
+  }
+
+  return {
+    uri: downloadResult.uri,
+    fileName,
+    mimeType,
+    cached: false,
+  };
+}
+
 /**
  * Download file from URL
  */
@@ -79,97 +181,10 @@ export async function downloadFile(
 ): Promise<DownloadResult> {
   // Handle both string URL and options object
   const options: DownloadOptions =
-    typeof urlOrOptions === 'string'
-      ? { url: urlOrOptions, saveToGallery: true }
-      : urlOrOptions;
-
-  const {
-    url,
-    fileName: customFileName,
-    saveToGallery = true,
-    albumName = 'Download',
-    onProgress,
-    headers,
-    cache = false,
-    overwrite = true,
-  } = options;
-
-  if (!url) {
-    throw new DownloadError('URL is required', 'INVALID_URL');
-  }
+    typeof urlOrOptions === 'string' ? { url: urlOrOptions } : urlOrOptions;
 
   try {
-    const fileName = generateFileName(url, customFileName);
-    const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-    const extension = getFileExtension(url);
-    const mimeType = getMimeType(extension);
-
-    // Check if file exists (cache control)
-    if (cache && !overwrite) {
-      const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      if (fileInfo.exists) {
-        return {
-          uri: fileUri,
-          fileName,
-          mimeType,
-          cached: true,
-        };
-      }
-    }
-
-    // Create download resumable for progress tracking
-    const downloadResumable = FileSystem.createDownloadResumable(
-      url,
-      fileUri,
-      headers ? { headers } : {},
-      onProgress
-        ? (downloadProgress) => {
-            const progress =
-              downloadProgress.totalBytesWritten /
-              downloadProgress.totalBytesExpectedToWrite;
-            onProgress(progress);
-          }
-        : undefined
-    );
-
-    const downloadResult = await downloadResumable.downloadAsync();
-
-    if (!downloadResult) {
-      throw new DownloadError('Download failed', 'DOWNLOAD_FAILED');
-    }
-
-    const result: DownloadResult = {
-      uri: downloadResult.uri,
-      fileName,
-      mimeType,
-      cached: false,
-    };
-
-    // Save to gallery if requested
-    if (saveToGallery) {
-      // Request permissions
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-
-      if (status !== 'granted') {
-        throw new DownloadError(
-          'Media library permission denied',
-          'PERMISSION_DENIED'
-        );
-      }
-
-      // Create asset from downloaded file
-      const asset = await MediaLibrary.createAssetAsync(downloadResult.uri);
-
-      // Create or get album
-      const album = await MediaLibrary.getAlbumAsync(albumName);
-      if (album === null) {
-        await MediaLibrary.createAlbumAsync(albumName, asset, false);
-      } else {
-        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
-      }
-    }
-
-    return result;
+    return await performDownload(options);
   } catch (error: any) {
     if (error instanceof DownloadError) {
       throw error;
@@ -191,7 +206,6 @@ export interface UseDownloadOptions {
   fileName?: string;
   headers?: Record<string, string>;
   cache?: boolean;
-  overwrite?: boolean;
 }
 
 export interface UseDownloadReturn {
@@ -230,6 +244,7 @@ export function useDownload(
   const downloadResumableRef = useRef<FileSystem.DownloadResumable | null>(
     null
   );
+  const cancelledRef = useRef(false);
 
   const reset = useCallback(() => {
     setIsDownloading(false);
@@ -237,12 +252,17 @@ export function useDownload(
     setError(null);
     setResult(null);
     downloadResumableRef.current = null;
+    cancelledRef.current = false;
   }, []);
 
   const cancel = useCallback(() => {
-    if (downloadResumableRef.current) {
-      downloadResumableRef.current.pauseAsync();
+    const resumable = downloadResumableRef.current;
+    if (resumable) {
+      cancelledRef.current = true;
       downloadResumableRef.current = null;
+      resumable.cancelAsync().catch(() => {
+        // Cancellation errors are irrelevant; the download is being discarded
+      });
       setIsDownloading(false);
       setError(new DownloadError('Download cancelled', 'CANCELLED'));
     }
@@ -254,94 +274,31 @@ export function useDownload(
       setProgress(0);
       setError(null);
       setResult(null);
+      cancelledRef.current = false;
 
       try {
-        const fileName = generateFileName(
-          url,
-          options?.fileName ?? defaultOptions?.fileName
-        );
-        const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-        const extension = getFileExtension(url);
-        const mimeType = getMimeType(extension);
-
-        // Check cache
-        const cache = options?.cache ?? defaultOptions?.cache ?? false;
-        const overwrite =
-          options?.overwrite ?? defaultOptions?.overwrite ?? true;
-
-        if (cache && !overwrite) {
-          const fileInfo = await FileSystem.getInfoAsync(fileUri);
-          if (fileInfo.exists) {
-            setResult({
-              uri: fileUri,
-              fileName,
-              mimeType,
-              cached: true,
-            });
-            setIsDownloading(false);
-            return;
-          }
-        }
-
-        // Create download resumable
-        const headers = options?.headers ?? defaultOptions?.headers;
-        const downloadResumable = FileSystem.createDownloadResumable(
-          url,
-          fileUri,
-          headers ? { headers } : {},
-          (downloadProgress) => {
-            const p =
-              downloadProgress.totalBytesWritten /
-              downloadProgress.totalBytesExpectedToWrite;
-            setProgress(p);
+        const finalResult = await performDownload(
+          {
+            url,
+            fileName: options?.fileName ?? defaultOptions?.fileName,
+            saveToGallery:
+              options?.saveToGallery ?? defaultOptions?.saveToGallery,
+            albumName: options?.albumName ?? defaultOptions?.albumName,
+            headers: options?.headers ?? defaultOptions?.headers,
+            cache: options?.cache ?? defaultOptions?.cache,
+            onProgress: setProgress,
+          },
+          (resumable) => {
+            downloadResumableRef.current = resumable;
           }
         );
-
-        downloadResumableRef.current = downloadResumable;
-
-        const downloadResult = await downloadResumable.downloadAsync();
-
-        if (!downloadResult) {
-          throw new DownloadError('Download failed', 'DOWNLOAD_FAILED');
-        }
-
-        const finalResult: DownloadResult = {
-          uri: downloadResult.uri,
-          fileName,
-          mimeType,
-          cached: false,
-        };
-
-        // Save to gallery if requested
-        const saveToGallery =
-          options?.saveToGallery ?? defaultOptions?.saveToGallery ?? true;
-        if (saveToGallery) {
-          const { status } = await MediaLibrary.requestPermissionsAsync();
-
-          if (status !== 'granted') {
-            throw new DownloadError(
-              'Media library permission denied',
-              'PERMISSION_DENIED'
-            );
-          }
-
-          const asset = await MediaLibrary.createAssetAsync(downloadResult.uri);
-          const albumName =
-            options?.albumName ?? defaultOptions?.albumName ?? 'Download';
-          const album = await MediaLibrary.getAlbumAsync(albumName);
-
-          if (album === null) {
-            await MediaLibrary.createAlbumAsync(albumName, asset, false);
-          } else {
-            await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
-          }
-        }
 
         setResult(finalResult);
         downloadResumableRef.current = null;
       } catch (err: any) {
-        const downloadError =
-          err instanceof DownloadError
+        const downloadError = cancelledRef.current
+          ? new DownloadError('Download cancelled', 'CANCELLED')
+          : err instanceof DownloadError
             ? err
             : new DownloadError(
                 err.message || 'An unknown error occurred',
