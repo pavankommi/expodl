@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.1](https://github.com/pavankommi/expodownload/compare/v2.0.0...v2.0.1) (2026-07-12)
+
+
+### Bug Fixes
+
+* rename package to expodownload ([96d69a6](https://github.com/pavankommi/expodownload/commit/96d69a620ed06c0be9f71a336264c209eefb6000))
+* rename package to expodownload ([90c2a44](https://github.com/pavankommi/expodownload/commit/90c2a448346dfaeb015b7884bd5d52ec4270d995))
+
 ## [2.0.0](https://github.com/pavankommi/expodownload/compare/v1.0.3...v2.0.0) (2026-07-12)
 
 
