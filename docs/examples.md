@@ -1,6 +1,6 @@
 # Examples
 
-Advanced usage examples for expo-download.
+Advanced usage examples for expodownload.
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ Advanced usage examples for expo-download.
 Allow users to cancel downloads mid-flight:
 
 ```typescript
-import { useDownload } from 'expo-download';
+import { useDownload } from 'expodownload';
 
 function DownloadWithCancel() {
   const { download, cancel, isDownloading, progress } = useDownload();
@@ -48,7 +48,7 @@ function DownloadWithCancel() {
 Download files from protected APIs:
 
 ```typescript
-import { useDownload } from 'expo-download';
+import { useDownload } from 'expodownload';
 
 function AuthenticatedDownload() {
   const { download } = useDownload({
@@ -83,7 +83,7 @@ await download('https://api.example.com/file.pdf', {
 Avoid re-downloading files that already exist:
 
 ```typescript
-import { useDownload } from 'expo-download';
+import { useDownload } from 'expodownload';
 
 function CachedDownload() {
   const { download, result } = useDownload({
@@ -119,7 +119,7 @@ function CachedDownload() {
 Track multiple downloads independently:
 
 ```typescript
-import { useDownload } from 'expo-download';
+import { useDownload } from 'expodownload';
 
 function MultiDownload() {
   const images = useDownload();
@@ -150,7 +150,7 @@ function MultiDownload() {
 Properly handle download errors:
 
 ```typescript
-import { useDownload, DownloadError } from 'expo-download';
+import { useDownload, DownloadError } from 'expodownload';
 
 function SafeDownload() {
   const { download, isDownloading, error, reset } = useDownload();
@@ -201,7 +201,7 @@ function SafeDownload() {
 Build a download manager:
 
 ```typescript
-import { useDownload } from 'expo-download';
+import { useDownload } from 'expodownload';
 import { useState } from 'react';
 
 function DownloadList() {
@@ -253,7 +253,7 @@ function DownloadList() {
 Organize gallery downloads into specific albums with custom names:
 
 ```typescript
-import { useDownload } from 'expo-download';
+import { useDownload } from 'expodownload';
 
 function OrganizedDownload() {
   const { download } = useDownload({
@@ -283,7 +283,7 @@ function OrganizedDownload() {
 By default, files are saved only to the app's document directory. Opt in to also save media to the device gallery:
 
 ```typescript
-import { useDownload } from 'expo-download';
+import { useDownload } from 'expodownload';
 
 function GalleryDownload() {
   const { download, result } = useDownload();
@@ -313,7 +313,7 @@ function GalleryDownload() {
 For more control, use `downloadFile` directly:
 
 ```typescript
-import { downloadFile } from 'expo-download';
+import { downloadFile } from 'expodownload';
 
 async function advancedDownload() {
   const result = await downloadFile({
@@ -346,7 +346,7 @@ Here's a full-featured download component:
 ```typescript
 import React, { useState } from 'react';
 import { View, Button, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { useDownload } from 'expo-download';
+import { useDownload } from 'expodownload';
 
 export default function DownloadManager() {
   const {
@@ -360,7 +360,7 @@ export default function DownloadManager() {
   } = useDownload({
     cache: true,
     headers: {
-      'User-Agent': 'expo-download-example'
+      'User-Agent': 'expodownload-example'
     }
   });
 

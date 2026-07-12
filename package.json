@@ -1,5 +1,5 @@
 {
-  "name": "expo-download",
+  "name": "expodownload",
   "version": "2.0.0",
   "description": "Lightweight Expo file download utility with caching, cancellation, and headers support.",
   "main": "lib/commonjs/index",
@@ -47,13 +47,13 @@
     "expo-file-system",
     "expo-media-library"
   ],
-  "repository": "https://github.com/pavankommi/expo-download",
+  "repository": "https://github.com/pavankommi/expodownload",
   "author": "pavankommi <pavankommi0503@gmail.com> (https://github.com/pavankommi)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pavankommi/expo-download/issues"
+    "url": "https://github.com/pavankommi/expodownload/issues"
   },
-  "homepage": "https://github.com/pavankommi/expo-download#readme",
+  "homepage": "https://github.com/pavankommi/expodownload#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
