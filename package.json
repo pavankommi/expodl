@@ -65,7 +65,7 @@
     "@types/react": "~19.1.0",
     "@typescript-eslint/parser": "^8.46.2",
     "del-cli": "^7.0.0",
-    "eslint": "^9.38.0",
+    "eslint": "^10.7.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "expo-file-system": "^57.0.0",
